@@ -344,7 +344,8 @@ def make_dataclass_and_log_config(
 
     if 'variables' not in unstructured_config:
         unstructured_config['variables'] = {}
-
+   
+    print("Extraneous keys", extraneous_keys)
     for key in extraneous_keys:
         raise ValueError(
             f'Unused parameter {key} found in cfg. Please check your yaml to ensure this parameter is necessary. Please place any variables under the `variables` key.',
@@ -489,7 +490,7 @@ def update_batch_size_info(cfg: Dict[str, Any]) -> Dict[str, Any]:
         cfg['device_train_microbatch_size'],
         data_replication_degree=data_replication_degree,
     )
-    cfg = update_config_with_batch_size_info(
+    cfg = update_config_with_batch_size_inf (
         cfg,
         device_train_batch_size,
         device_train_microbatch_size,
