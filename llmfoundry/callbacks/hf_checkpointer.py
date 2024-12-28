@@ -288,6 +288,7 @@ class HuggingFaceCheckpointer(Callback):
         flatten_imports: Sequence[str] = ('llmfoundry',),
         final_register_only: bool = False,
         register_wait_seconds: int = 7200,
+        latest_model_symlink_dir: Optional[str] = None,
     ):
         _, _, self.save_dir_format_str = parse_uri(save_folder)
         self.overwrite = overwrite
@@ -299,6 +300,7 @@ class HuggingFaceCheckpointer(Callback):
         }[precision]
         self.flatten_imports = flatten_imports
         self.using_peft = False
+        self.latest_model_symlink_dir = latest_model_symlink_dir
 
         self.final_register_only = final_register_only
         self.register_wait_seconds = register_wait_seconds
@@ -622,8 +624,11 @@ class HuggingFaceCheckpointer(Callback):
         temp_save_dir = tempfile.mkdtemp() if use_temp_dir else save_dir
 
         # Create symlink to save_dir
-        os.unlink("/workspace/final_model_checkpoint")
-        os.symlink(temp_save_dir, "/workspace/final_model_checkpoint")
+        if self.latest_model_symlink_dir is not None:
+            import os
+            os.makedirs(self.latest_model_symlink_dir, exist_ok=True)
+            os.unlink(self.latest_model_symlink_dir)
+            os.symlink(temp_save_dir, self.latest_model_symlink_dir)
 
         log.debug('Gathering state dict')
 
