@@ -744,7 +744,7 @@ class HuggingFaceCheckpointer(Callback):
                             k
                         ].base_model_name_or_path = self.pretrained_model_name
 
-            log.debug('Saving Hugging Face checkpoint to disk')
+            log.debug('Saving Hugging Face checkpoint to disk %s', temp_save_dir)
 
             if upload_to_save_folder:
                 # This context manager casts the TE extra state in io.BytesIO format to tensor format
