@@ -626,8 +626,10 @@ class HuggingFaceCheckpointer(Callback):
         # Create symlink to save_dir
         if self.latest_model_symlink_dir is not None:
             import os
-            os.makedirs(self.latest_model_symlink_dir, exist_ok=True)
-            os.unlink(self.latest_model_symlink_dir)
+            try:
+                os.unlink(self.latest_model_symlink_dir)
+            except FileNotFoundError:
+                pass
             os.symlink(temp_save_dir, self.latest_model_symlink_dir)
 
         log.debug('Gathering state dict')
