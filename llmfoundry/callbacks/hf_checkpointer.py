@@ -858,10 +858,12 @@ class HuggingFaceCheckpointer(Callback):
                 # Save the temporary directory to be cleaned up later.
                 if use_temp_dir:
                     self.temp_save_dir = temp_save_dir
-            else:
+            # else:
                 # Clean up the temporary directory if we don't need to register to mlflow.
-                if use_temp_dir:
-                    shutil.rmtree(temp_save_dir)
+                # if use_temp_dir:
+                    # shutil.rmtree(temp_save_dir)
+        import os 
+        log.info(os.listdir(temp_save_dir))
         dist.barrier()
 
     def _save_and_register_peft_model(
