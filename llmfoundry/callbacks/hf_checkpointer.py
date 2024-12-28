@@ -621,6 +621,10 @@ class HuggingFaceCheckpointer(Callback):
         use_temp_dir = self.remote_ud is not None
         temp_save_dir = tempfile.mkdtemp() if use_temp_dir else save_dir
 
+        # Create symlink to save_dir
+        os.unlink("/workspace/final_model_checkpoint")
+        os.symlink(temp_save_dir, "/workspace/final_model_checkpoint")
+
         log.debug('Gathering state dict')
 
         if state.is_model_ddp:
