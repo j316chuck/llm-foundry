@@ -470,8 +470,8 @@ class HuggingFaceCheckpointer(Callback):
                 )
 
             # Clean up temporary save directory; all processes are done with it.
-            # if self.temp_save_dir is not None:
-            #     shutil.rmtree(self.temp_save_dir)
+            if self.temp_save_dir is not None:
+                shutil.rmtree(self.temp_save_dir)
 
     def _is_last_batch(self, state: State):
         elapsed_duration = state.get_elapsed_duration()
