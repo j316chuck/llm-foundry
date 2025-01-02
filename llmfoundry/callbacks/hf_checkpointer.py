@@ -288,7 +288,6 @@ class HuggingFaceCheckpointer(Callback):
         flatten_imports: Sequence[str] = ('llmfoundry',),
         final_register_only: bool = False,
         register_wait_seconds: int = 7200,
-        latest_model_symlink_dir: Optional[str] = None,
     ):
         _, _, self.save_dir_format_str = parse_uri(save_folder)
         self.overwrite = overwrite
@@ -300,7 +299,6 @@ class HuggingFaceCheckpointer(Callback):
         }[precision]
         self.flatten_imports = flatten_imports
         self.using_peft = False
-        self.latest_model_symlink_dir = latest_model_symlink_dir
 
         self.final_register_only = final_register_only
         self.register_wait_seconds = register_wait_seconds
@@ -623,15 +621,6 @@ class HuggingFaceCheckpointer(Callback):
         use_temp_dir = self.remote_ud is not None
         temp_save_dir = tempfile.mkdtemp() if use_temp_dir else save_dir
 
-        # Create symlink to save_dir
-        if self.latest_model_symlink_dir is not None:
-            import os
-            try:
-                os.unlink(self.latest_model_symlink_dir)
-            except FileNotFoundError:
-                pass
-            os.symlink(temp_save_dir, self.latest_model_symlink_dir)
-
         log.debug('Gathering state dict')
 
         if state.is_model_ddp:
@@ -744,7 +733,7 @@ class HuggingFaceCheckpointer(Callback):
                             k
                         ].base_model_name_or_path = self.pretrained_model_name
 
-            log.debug('Saving Hugging Face checkpoint to disk %s', temp_save_dir)
+            log.debug('Saving Hugging Face checkpoint to disk')
 
             if upload_to_save_folder:
                 # This context manager casts the TE extra state in io.BytesIO format to tensor format
@@ -858,12 +847,10 @@ class HuggingFaceCheckpointer(Callback):
                 # Save the temporary directory to be cleaned up later.
                 if use_temp_dir:
                     self.temp_save_dir = temp_save_dir
-            # else:
+            else:
                 # Clean up the temporary directory if we don't need to register to mlflow.
-                # if use_temp_dir:
-                    # shutil.rmtree(temp_save_dir)
-        import os 
-        log.info(os.listdir(temp_save_dir))
+                if use_temp_dir:
+                    shutil.rmtree(temp_save_dir)
         dist.barrier()
 
     def _save_and_register_peft_model(
